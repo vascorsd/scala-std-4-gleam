@@ -1,4 +1,4 @@
-# scala_std
+# scala_stdlib
 
 Bringing useful functions that exist in Scala to the Gleam language.
 
