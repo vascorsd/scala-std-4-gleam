@@ -1,0 +1,12 @@
+name = "scala_stdlib"
+version = "0.0.1"
+
+description = "An std lib closer to the feel of the one from Scala"
+licences = ["AGPL-3.0-or-later"]
+repository = { type = "github", user = "varcorsd", repo = "scala-stdlib" }
+
+[dependencies]
+gleam_stdlib = "~> 0.34 or ~> 1.0"
+
+[dev-dependencies]
+gleeunit = "~> 1.0"
