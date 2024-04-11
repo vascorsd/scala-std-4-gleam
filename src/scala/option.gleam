@@ -1,13 +1,5 @@
-import gleam/io
+import gleam/function.{identity}
 import gleam/option.{type Option, None, Some}
-
-pub fn main() {
-  io.println("Hello from scala_std!")
-}
-
-pub fn identity(a) -> a {
-  a
-}
 
 /// Option
 /// 
