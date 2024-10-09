@@ -9,4 +9,4 @@ indent_style = space
 indent_size = 2
 
 [*.{gleam, mjs, js, ts, md}]
-max_line_length = 80
+max_line_length = 90

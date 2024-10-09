@@ -1,6 +1,8 @@
-//// # Everything about **Option** type.
+//// `Option` type and its operations.
 ////
-//// A mix of functions and function alias found in the scala
+//// Common operations found in scala std or
+//// the common libraries that enhance scala DX.
+////
 //// ## Constructors:
 ////
 //// ### Functions to create `Option` values:
@@ -18,76 +20,131 @@
 //// ### Manipulation of `Option` values:
 ////
 
-import gleam/function.{identity}
 import gleam/option.{type Option, None, Some}
 
-/// Usually available in the `cats` library as an extension.
+// Construction ----
+
+pub fn apply(a) -> Option(a) {
+  Some(a)
+}
+
+pub fn empty() -> Option(a) {
+  None
+}
+
 pub fn some(a) -> Option(a) {
   Some(a)
 }
 
-/// Usually available in the `cats` library as an extension.
 pub fn none() -> Option(a) {
   None
 }
 
-/// Available in the scala standard library.
-/// https://www.scala-lang.org/api/current/scala/Option$.html#apply-fffff801
-pub fn apply(a) -> Option(a) {
-  some(a)
-}
-
-/// Available in the scala standard library.
-/// https://www.scala-lang.org/api/current/scala/Option$.html#empty-4ee
-pub fn empty() -> Option(a) {
-  none()
-}
-
-/// Matches the name for the `Applicative` type-class usually found in `cats` library.
 pub fn pure(a) -> Option(a) {
-  some(a)
+  Some(a)
 }
 
-/// Available in the scala standard library.
-/// https://www.scala-lang.org/api/current/scala/Option$.html#when-a9e
-pub fn when(condition: Bool, a) -> Option(a) {
-  case condition {
+pub fn when(cond: Bool, a) -> Option(a) {
+  case cond {
     True -> some(a)
     False -> none()
   }
 }
 
-// Ignoring this one. Negatives are horrible to read in real code.
-//pub fn unless
-
-// basically the core function where all other fns can be buit upon
-pub fn fold(o: Option(a), none_fn: fn() -> b, some_fn: fn(a) -> b) {
-  case o {
-    None -> none_fn()
-    Some(a) -> some_fn(a)
+pub fn when_lazy(cond: Bool, a fun: fn() -> a) -> Option(a) {
+  case cond {
+    True -> some(fun())
+    False -> none()
   }
 }
 
-// dangerous.
-// impure.
-// explodes.
-pub fn unsafe_get(o: Option(a)) -> a {
-  o
-  |> fold(fn() { panic }, identity)
+// Manipulation ----
+
+pub fn fold(o: Option(a), if_empty: fn() -> b, f: fn(a) -> b) -> b {
+  case o {
+    None -> if_empty()
+    Some(a) -> f(a)
+  }
 }
 
-pub fn exists(o: Option(a), p: fn(a) -> Bool) -> Bool {
-  o
-  |> fold(fn() { False }, p)
+pub fn flat_map(o: Option(a), f: fn(a) -> Option(b)) -> Option(b) {
+  option.then(o, f)
+}
+
+pub fn map(o: Option(a), f: fn(a) -> b) -> Option(b) {
+  option.map(o, f)
+}
+
+pub fn flatten(o: Option(Option(a))) -> Option(a) {
+  option.flatten(o)
 }
 
 pub fn filter(o: Option(a), p: fn(a) -> Bool) -> Option(a) {
+  o |> flat_map(fn(a) { when(p(a), a) })
+}
+
+pub fn exists(o: Option(a), p: fn(a) -> Bool) -> Bool {
   case o {
-    Some(a) ->
-      case p(a) {
-        True -> some(a)
-        False -> none()
-      }
-    _ -> none()
+    Some(a) -> p(a)
+    None -> False
+  }
+}
+
+pub fn is_defined(o: Option(a)) -> Bool {
+  o |> exists(fn(_) { True })
+}
+
+pub fn non_empty(o: Option(a)) -> Bool {
+  is_defined(o)
+}
+
+pub fn is_empty(o: Option(a)) -> Bool {
+  !non_empty(o)
+}
+
+pub fn contains(o: Option(a), elem: a) -> Bool {
+  o |> exists(fn(a) { a == elem })
+}
+
+pub fn get_or_else(o: Option(a), default: fn() -> a) -> a {
+  case o {
+    Some(a) -> a
+    None -> default()
+  }
+}
+
+pub fn or_else(o: Option(a), alternative: fn() -> Option(a)) -> Option(a) {
+  case o {
+    Some(a) -> Some(a)
+    None -> alternative()
+  }
+}
+
+pub fn zip(o: Option(a), that: Option(b)) -> Option(#(a, b)) {
+  case o, that {
+    Some(a), Some(b) -> Some(#(a, b))
+    _, _ -> None
+  }
+}
+
+pub fn to_list(o: Option(a)) -> List(a) {
+  case o {
+    Some(a) -> [a]
+    None -> []
+  }
+}
+
+// Unsafe zone ----
+
+pub fn for_each(o: Option(a), f: fn(a) -> b) -> Nil {
+  o |> map(f)
+
+  Nil
+}
+
+pub fn unsafe_get(o: Option(a)) -> a {
+  case o {
+    Some(a) -> a
+    None -> panic
   }
 }

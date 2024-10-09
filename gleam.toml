@@ -1,12 +1,16 @@
 name = "scala_stdlib"
 version = "0.0.1"
 licences = ["AGPL-3.0-or-later"]
-description = "An extended standard library for the Gleam programming language inspired by Scala language and its ecosystem"
+
+description = """
+An extended standard library for the Gleam programming language inspired by Scala language
+and its ecosystem.
+"""
 
 repository = { type = "github", user = "varcorsd", repo = "scala-stdlib-4-gleam" }
 
 [dependencies]
-gleam_stdlib = "~> 0.34 or ~> 1.0"
+gleam_stdlib = ">= 0.34.0 and < 2.0.0"
 
 [dev-dependencies]
-gleeunit = "~> 1.0"
+gleeunit = ">= 1.0.0 and < 2.0.0"
